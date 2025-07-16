@@ -16,5 +16,9 @@ $ tree -L 2
 │   ├── index.html
 │   └── script.js
 ├── README.md
+├── requirements.txt
 ├── .gitignore
 └── venv(생략)
+
+추가계획 : 프론트엔드 페이지 폰트 다듬기, 숫자배열 늘리기, 웹페이지 올라가도록
+장기계획 : 도커 등등 실행 자동화(백엔드 프론트엔드 모두)

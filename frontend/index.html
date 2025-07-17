@@ -1,0 +1,57 @@
+<!-- frontend/index.html -->
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>간단 덧셈 계산기</title>
+</head>
+<body>
+    <h2>덧셈 계산기</h2>
+    <div id="number-buttons">
+        <button onclick="pressNumber(1)">1</button>
+        <button onclick="pressNumber(2)">2</button>
+    </div>
+    <div id="operator-buttons">
+        <button onclick="pressOperator('+')">+</button>
+        <button onclick="pressEquals()">=</button>
+    </div>
+    <p>입력: <span id="result">?</span></p>
+    <p>출력: <span id="result">?</span></p>
+
+    <script>
+        let operandA = null;
+        let operandB = null;
+        let operator = null;
+
+        function pressNumber(num) {
+            if (operator === null) {
+                operandA = num;
+                document.getElementById('result').textContent = operandA;
+            } else {
+                operandB = num;
+                document.getElementById('result').textContent = operandA + ' ' + operator + ' ' + operandB;
+            }
+            console.log("숫자입력:", num);
+        }
+
+        function pressOperator(op) {
+            if (operandA !== null) {
+                operator = op;
+                document.getElementById('result').textContent = operandA + ' ' + operator;
+                console.log("연산자입력:", op);
+            }
+        }
+
+        function pressEquals() {
+            // 아래 코드에서 JSON 객체(payload)를 생성함
+            const payload = {
+                a: operandA,
+                b: operandB,
+                op: operator
+            };
+            // payload를 JSON 문자열로 변환하여 콘솔에 출력
+            console.log("서버로 보낼 JSON 데이터:", JSON.stringify(payload));
+        }
+    </script>
+</body>
+</html>

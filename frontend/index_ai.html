@@ -1,0 +1,117 @@
+<!-- frontend/index.html (수정된 버전) -->
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>간단 덧셈 계산기</title>
+</head>
+<body>
+    <h2>덧셈 계산기</h2>
+    <!-- 편의를 위해 숫자 버튼을 추가했습니다 -->
+    <p>
+        숫자:
+        <button onclick="pressNumber(0)">0</button>
+        <button onclick="pressNumber(1)">1</button>
+        <button onclick="pressNumber(2)">2</button>
+        <button onclick="pressNumber(3)">3</button>
+        <button onclick="pressNumber(4)">4</button>
+        <button onclick="pressNumber(5)">5</button>
+    </p>
+    <p>
+        연산자:
+        <button onclick="pressOperator('+')">+</button>
+        <button onclick="pressOperator('-')">--</button>
+        <button onclick="pressOperator('*')">*</button>
+        <button onclick="pressOperator('/')">/</button>
+        <button onclick="pressEquals()">=</button>
+        <button onclick="pressReset()">리셋</button>
+    </p>
+    <hr>
+    <p>입력 과정: <span id="input-display"></span></p>
+    <p><b>계산 결과: <span id="output-display">?</span></b></p>
+
+    <script>
+        let operandA = null;
+        let operandB = null;
+        let operator = null;
+
+        const inputDisplay = document.getElementById('input-display');
+        const outputDisplay = document.getElementById('output-display');
+
+        function pressNumber(num) {
+            if (operator === null) { // 첫 번째 숫자를 입력할 차례
+                operandA = num;
+                inputDisplay.textContent = operandA;
+            } else { // 두 번째 숫자를 입력할 차례
+                operandB = num;
+                inputDisplay.textContent = operandA + ' ' + operator + ' ' + operandB;
+            }
+            console.log("숫자입력:", num);
+        }
+
+        function pressOperator(op) {
+            // 첫 번째 숫자가 입력되었을 때만 연산자 입력 가능
+            if (operandA !== null) {
+                operator = op;
+                inputDisplay.textContent = operandA + ' ' + operator;
+                console.log("연산자입력:", op);
+            }
+        }
+
+        // async/await를 사용하여 비동기 통신을 처리
+        async function pressEquals() {
+            // 두 숫자와 연산자가 모두 입력되었는지 확인
+            if (operandA === null || operandB === null || operator === null) {
+                alert("숫자와 연산자를 모두 입력해주세요.");
+                return;
+            }
+
+            // 1. 백엔드로 보낼 데이터 객체(payload) 생성
+            const payload = {
+                a: operandA,
+                b: operandB,
+                op: operator
+            };
+            console.log("서버로 보낼 JSON 데이터:", JSON.stringify(payload));
+
+            // 2. fetch API를 사용해 백엔드로 데이터 전송 (POST 요청)
+            try {
+                const response = await fetch('http://127.0.0.1:5000/api/calculate', {
+                    method: 'POST', // HTTP 요청 메소드
+                    headers: {
+                        'Content-Type': 'application/json', // 보내는 데이터의 타입은 JSON
+                    },
+                    body: JSON.stringify(payload), // JavaScript 객체를 JSON 문자열로 변환하여 전송
+                });
+                
+                // 3. 백엔드로부터 받은 응답(response)을 JSON 형태로 파싱
+                const data = await response.json();
+
+                // 4. 응답에 따라 화면에 결과 또는 에러 메시지 표시
+                if (response.ok) { // HTTP 상태 코드가 200-299일 경우
+                    outputDisplay.textContent = data.result;
+                    console.log("서버로부터 받은 결과:", data.result);
+                } else {
+                    outputDisplay.textContent = `오류: ${data.error}`;
+                    console.error("서버 오류:", data.error);
+                }
+
+            } catch (error) {
+                // 네트워크 오류 등 통신 자체에 문제가 생긴 경우
+                outputDisplay.textContent = '서버와 통신할 수 없습니다.';
+                console.error("통신 오류:", error);
+            }
+        }
+
+        // 리셋 함수 추가
+        function pressReset() {
+            operandA = null;
+            operandB = null;
+            operator = null;
+            inputDisplay.textContent = '';
+            outputDisplay.textContent = '?';
+            console.log("계산기 리셋됨");
+        }
+    </script>
+</body>
+</html>
